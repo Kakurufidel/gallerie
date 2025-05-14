@@ -28,27 +28,6 @@ A. Gestion des Utilisateurs
 
         Admin : Accès complet.
 
-    Inscription :
-
-        Commerçant : SIRET + validation manuelle (admin).
-
-        Client : Email + mot de passe.
-
-B. Gestion des Commerçants
-
-    Profil Commerçant :
-
-        Enseigne, SIRET, horaires d'ouverture (JSON).
-
-        Statut actif/inactif.
-
-    Produits :
-
-        Catégories (alimentation, habillement...).
-
-        Gestion de stock avec alertes.
-
-        Prix HT/TTC (taux de TVA configurables).
 
 C. Transactions & Finance
 
@@ -103,8 +82,6 @@ Processus de Vente
     Transaction enregistrée avec lien client-commerçant.
 
 5. Règles Métier
-
-    Validation SIRET : 14 chiffres obligatoires.
 
     Stock : Ne peut pas être négatif (CheckConstraint).
 
@@ -164,12 +141,8 @@ Basse	Intégration Stripe pour paiements en ligne
     Équipe Technique : [Noms/Rôles]
 
 Version : 1.0
-Date : [Date de Rédaction]
+Date : [le 14 main a 15: 49]
 
 Ce document sert de référence pour :
 
     L'équipe de développement.
-
-    Les parties prenantes (investisseurs, commerciaux).
-
-    Le pilotage des évolutions futures.
