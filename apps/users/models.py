@@ -1,71 +1,124 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
-from .constants import ROLE_CHOICES, ROLE_PERMISSIONS
-
-
-class UserManager(models.Manager):
-    """Custom manager for user creation methods"""
-
-    def create_commercant(self, email, password, **extra_fields):
-        """Helper method to create merchant users"""
-        extra_fields.setdefault("role", "COMMERCE")
-        return self._create_user(email, password, **extra_fields)
+from .managers import UserManager
+from .roles import ROLE_CHOICES, ROLE_PERMISSIONS
 
 
-class User(AbstractUser):
+class User(AbstractUser, PermissionsMixin):
     """
-    Extended User model with role-based system
-    Contains all business logic related to users
+    Custom User model with role-based system and admin-compatible fields.
     """
 
-    # Extended fields
-    email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=20, blank=True)
-    birth_date = models.DateField(null=True, blank=True)
+    # Champs de base étendus
+    username = models.CharField(
+        _("username"),
+        max_length=150,
+        unique=True,
+        help_text=_(
+            "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
+        ),
+        validators=[AbstractUser.username_validator],
+        error_messages={
+            "unique": _("A user with that username already exists."),
+        },
+    )
 
-    # Custom role field
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="CLIENT")
+    email = models.EmailField(
+        _("email address"),
+        unique=True,
+        blank=True,
+        null=False,
+        error_messages={
+            "unique": _("A user with that email already exists."),
+        },
+    )
 
-    # Status fields
-    is_verified = models.BooleanField(default=False)
-    last_activity = models.DateTimeField(auto_now=True)
+    phone = models.CharField(_("phone number"), max_length=20, blank=True, null=True)
+
+    birth_date = models.DateField(_("birth date"), null=True, blank=True)
+
+    role = models.CharField(
+        _("role"), max_length=20, choices=ROLE_CHOICES, default="CLIENT"
+    )
+
+    is_verified = models.BooleanField(_("verified status"), default=False)
+
+    last_activity = models.DateTimeField(_("last activity"), auto_now=True)
+
+    # Champs requis pour le superuser
+    is_staff = models.BooleanField(
+        _("staff status"),
+        default=False,
+        help_text=_("Designates whether the user can log into this admin site."),
+    )
+
+    is_active = models.BooleanField(
+        _("active"),
+        default=True,
+        help_text=_(
+            "Designates whether this user should be treated as active. "
+            "Unselect this instead of deleting accounts."
+        ),
+    )
 
     objects = UserManager()
 
     class Meta:
+        verbose_name = _("user")
+        verbose_name_plural = _("users")
+        app_label = "users"
+        db_table = "users"
         permissions = [
-            ("can_manage_commercants", "Can manage merchants"),
+            ("can_manage_merchants", _("Can manage merchants")),
         ]
+        ordering = ["-date_joined"]
 
     def __str__(self):
-        return f"{self.get_full_name()} ({self.role})"
-
-    # ----- Business Logic Methods -----
+        return f"{self.get_full_name() or self.username} ({self.role})"
 
     @property
-    def is_commercant(self):
+    def is_merchant(self):
         """Check if user has merchant role"""
-        return self.role == "COMMERCE"
+        return self.role == "MERCHANT"
+
+    @property
+    def is_admin(self):
+        """Check if user has admin role"""
+        return self.role == "ADMIN" or self.is_superuser
 
     def get_permissions(self):
         """Get permissions based on user role"""
-        return ROLE_PERMISSIONS.get(self.role, [])
+        perms = list(ROLE_PERMISSIONS.get(self.role, []))
+        if self.is_superuser:
+            perms.append("admin")
+        return perms
 
     def clean(self):
         """Data validation before saving"""
-        if self.role == "COMMERCE" and not self.phone:
-            raise ValidationError("Merchants must provide a phone number")
+        super().clean()
 
-    def activate_commercant_account(self):
+        if self.role == "MERCHANT" and not self.phone:
+            raise ValidationError(
+                _("Merchants must provide a phone number"), code="invalid_merchant"
+            )
+
+        if self.email:
+            self.email = self.__class__.objects.normalize_email(self.email)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def activate_merchant_account(self):
         """Special activation workflow for merchants"""
-        if self.is_commercant:
+        if self.is_merchant:
             self.is_verified = True
             self.save(update_fields=["is_verified"])
 
-    # Class methods
     @classmethod
-    def get_commercants(cls):
+    def get_merchants(cls):
         """Get all merchant users"""
-        return cls.objects.filter(role="COMMERCE")
+        return cls.objects.filter(role="MERCHANT")

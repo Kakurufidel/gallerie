@@ -1,0 +1,92 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-15 16:41+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+#: apps/users/models.py:15
+msgid "username"
+msgstr ""
+
+#: apps/users/models.py:18
+msgid "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
+msgstr ""
+
+#: apps/users/models.py:21
+msgid "A user with that username already exists."
+msgstr ""
+
+#: apps/users/models.py:26
+msgid "email address"
+msgstr ""
+
+#: apps/users/models.py:31
+msgid "A user with that email already exists."
+msgstr ""
+
+#: apps/users/models.py:36
+msgid "phone number"
+msgstr ""
+
+#: apps/users/models.py:43
+msgid "birth date"
+msgstr ""
+
+#: apps/users/models.py:49
+msgid "role"
+msgstr ""
+
+#: apps/users/models.py:56
+msgid "verified status"
+msgstr ""
+
+#: apps/users/models.py:61
+msgid "last activity"
+msgstr ""
+
+#: apps/users/models.py:67
+msgid "staff status"
+msgstr ""
+
+#: apps/users/models.py:69
+msgid "Designates whether the user can log into this admin site."
+msgstr ""
+
+#: apps/users/models.py:73
+msgid "active"
+msgstr ""
+
+#: apps/users/models.py:76
+msgid ""
+"Designates whether this user should be treated as active. Unselect this "
+"instead of deleting accounts."
+msgstr ""
+
+#: apps/users/models.py:84
+msgid "user"
+msgstr ""
+
+#: apps/users/models.py:85
+msgid "users"
+msgstr ""
+
+#: apps/users/models.py:89
+msgid "Can manage merchants"
+msgstr ""
+
+#: apps/users/models.py:119
+msgid "Merchants must provide a phone number"
+msgstr ""
