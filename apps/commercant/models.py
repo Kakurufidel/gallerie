@@ -23,6 +23,8 @@ class Merchant(models.Model):
     opening_hours = models.JSONField(default=dict)
     is_active = models.BooleanField(default=True)
 
+    shop_photo = models.ImageField(upload_to="shops/", blank=True, null=True)
+
     # Business logic methods
     def add_product(self, name, price, category="FOOD", **kwargs):
         """Creates a new product with automatic validation"""
@@ -81,6 +83,8 @@ class Product(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     modification_date = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+
+    photo = models.ImageField(upload_to="products/", blank=True, null=True)
 
     # Business methods
     @property

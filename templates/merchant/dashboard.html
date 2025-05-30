@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOKO - Tableau de Bord Gestion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .primary-blue { color: #2563eb; }
+        .btn-primary { background-color: #2563eb; color: white; }
+        .btn-primary:hover { background-color: #1d4ed8; }
+        .btn-secondary { background-color: #4a5568; color: white; }
+        .btn-secondary:hover { background-color: #2d3748; }
+        .btn-danger { background-color: #dc2626; color: white; }
+        .btn-danger:hover { background-color: #b91c1c; }
+        .btn-warning { background-color: #f59e0b; color: white; }
+        .btn-warning:hover { background-color: #d97706; }
+        .nav-link-active { color: #2563eb; font-weight: 600; border-bottom: 2px solid #2563eb; }
+        .language-switcher { position: relative; }
+        .language-switcher button svg.arrow-down { transition: transform 0.2s ease-in-out; }
+        .language-switcher button[aria-expanded="true"] svg.arrow-down { transform: rotate(180deg); }
+        .language-dropdown { position: absolute; right: 0; top: 100%; margin-top: 0.5rem; background-color: white; border-radius: 0.375rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); z-index: 50; }
+        .footer-cool { background: linear-gradient(to right, #1a202c, #2d3748); }
+        /* Sidebar specific styles */
+        .sidebar { width: 260px; transition: width 0.3s ease; }
+        .sidebar.collapsed { width: 80px; } /* Example for collapsed state */
+        .sidebar.collapsed .sidebar-link span { display: none; }
+        .sidebar.collapsed .sidebar-link svg { margin-right: 0; }
+        .sidebar.collapsed .text-center p, .sidebar.collapsed .text-center a span { display:none; } /* Hide text in collapsed */
+        .sidebar.collapsed .text-center a { font-size: 1.5rem; } /* Adjust logo size if needed */
+
+
+        .sidebar-link { display: flex; align-items:center; padding: 0.75rem 1.5rem; color: #cbd5e1; border-left: 3px solid transparent; transition: background-color 0.2s ease, color 0.2s ease, border-left-color 0.2s ease; }
+        .sidebar-link:hover { background-color: #2d3748; color: white; border-left-color: #2563eb;}
+        .sidebar-link-active { background-color: #2563eb; color: white; font-weight: 600; border-left-color: #60a5fa; }
+        .sidebar-link svg { margin-right: 0.75rem; flex-shrink: 0; } /* Ensure SVG doesn't shrink */
+
+        /* Table styles */
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table-custom th, .table-custom td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb; /* gray-200 */
+        }
+        .table-custom th {
+            background-color: #f9fafb; /* gray-50 */
+            font-weight: 600;
+            color: #374151; /* gray-700 */
+        }
+        .table-custom tbody tr:hover {
+            background-color: #f3f4f6; /* gray-100 */
+        }
+        .table-custom img.product-thumbnail {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 0.25rem;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px; /* pill shape */
+            font-size: 0.75rem; /* text-xs */
+            font-weight: 500;
+        }
+        .status-active { background-color: #d1fae5; color: #065f46; } /* green */
+        .status-inactive { background-color: #fee2e2; color: #991b1b; } /* red */
+        .status-pending { background-color: #fef3c7; color: #92400e; } /* amber */
+        .status-shipped { background-color: #dbeafe; color: #1e40af; } /* blue */
+        .status-delivered { background-color: #dcfce7; color: #166534; } /* green */
+        .status-cancelled { background-color: #f3f4f6; color: #4b5563; } /* gray */
+
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="flex min-h-screen">
+        <aside class="sidebar bg-gray-800 text-gray-100 p-4 space-y-2 hidden md:flex md:flex-col">
+            <div class="text-center py-4">
+                <a href="index.html" class="text-3xl font-bold text-white"><span>SOKO</span></a>
+                <p class="text-xs text-gray-400">Espace Gestionnaire</p>
+            </div>
+            <nav class="flex-grow">
+                <a href="#dashboard-overview" class="sidebar-link sidebar-link-active">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <span>Vue d'ensemble</span>
+                </a>
+                <a href="#dashboard-products" class="sidebar-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                    <span>Produits</span>
+                </a>
+                <a href="#dashboard-orders" class="sidebar-link">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <span>Commandes</span>
+                </a>
+                <a href="#dashboard-stats" class="sidebar-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"></path><path d="M18 20V4"></path><path d="M6 20V16"></path></svg>
+                    <span>Statistiques</span>
+                </a>
+                <a href="#dashboard-invoices" class="sidebar-link">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                    <span>Factures</span>
+                </a>
+                 <a href="#dashboard-taxes" class="sidebar-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
+                    <span>Taxes & Cotisations</span>
+                </a>
+                <a href="#dashboard-profile" class="sidebar-link">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <span>Profil Boutique</span>
+                </a>
+            </nav>
+            <div class="mt-auto">
+                 <a href="index.html" class="sidebar-link flex items-center mt-6 border-t border-gray-700 pt-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <span>Quitter la Gestion</span>
+                </a>
+            </div>
+        </aside>
+
+        <div class="flex-1 flex flex-col">
+            <header class="bg-white shadow-md p-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <button id="mobileSidebarToggle" class="md:hidden text-gray-600 mr-3">
+                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                    </button>
+                    <h1 class="text-xl font-semibold text-gray-700" id="dashboardPageTitle">Vue d'ensemble</h1>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-sm text-gray-600 hidden sm:block">Bonjour, [Nom Vendeur]</span>
+                    <a href="connexion.html" class="text-sm text-blue-600 hover:underline">Déconnexion</a>
+                </div>
+            </header>
+
+            <main class="flex-grow p-6 md:p-8 space-y-8">
+                <section id="dashboard-overview" class="dashboard-section">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6">Bienvenue sur votre tableau de bord SOKO</h2>
+                    <p class="text-gray-600 mb-6">C'est ici que vous gérerez votre boutique, vos produits, et suivrez vos performances.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-lg font-semibold text-blue-700">Ventes du Mois</h3>
+                                <svg class="w-8 h-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">1,234.56 €</p>
+                            <p class="text-sm text-green-500 mt-1">+5% vs mois dernier</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                             <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-lg font-semibold text-blue-700">Nouvelles Commandes</h3>
+                                <svg class="w-8 h-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">42</p>
+                            <p class="text-sm text-gray-500 mt-1">En attente de traitement</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-lg font-semibold text-blue-700">Produits Actifs</h3>
+                                <svg class="w-8 h-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">150</p>
+                            <a href="#dashboard-products" data-target="dashboard-products" class="text-sm text-blue-600 hover:underline block mt-1 internal-nav-link">Gérer les produits</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="dashboard-products" class="dashboard-section hidden">
+                     <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-semibold text-gray-800">Gestion des Produits</h2>
+                        <button class="btn-primary py-2 px-4 rounded-md flex items-center text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            Ajouter un Produit
+                        </button>
+                     </div>
+                     <div class="bg-white p-6 rounded-xl shadow-lg overflow-x-auto">
+                        <table class="table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Nom du Produit</th>
+                                    <th>Catégorie</th>
+                                    <th>Prix</th>
+                                    <th>Stock</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><img src="https://placehold.co/50x50/EBF4FF/1a202c?text=P1" alt="[Image de Produit 1]" class="product-thumbnail"></td>
+                                    <td>Chemise Élégante</td>
+                                    <td>Vêtements</td>
+                                    <td>45.00 €</td>
+                                    <td>120</td>
+                                    <td><span class="status-badge status-active">Actif</span></td>
+                                    <td class="space-x-2">
+                                        <button class="btn-warning p-1.5 rounded text-xs"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                                        <button class="btn-danger p-1.5 rounded text-xs"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><img src="https://placehold.co/50x50/E0F2FE/1a202c?text=P2" alt="[Image de Produit 2]" class="product-thumbnail"></td>
+                                    <td>Casque Audio Pro</td>
+                                    <td>Électronique</td>
+                                    <td>199.99 €</td>
+                                    <td>75</td>
+                                    <td><span class="status-badge status-active">Actif</span></td>
+                                    <td class="space-x-2">
+                                        <button class="btn-warning p-1.5 rounded text-xs"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                                        <button class="btn-danger p-1.5 rounded text-xs"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><img src="https://placehold.co/50x50/D6EAF8/1a202c?text=P3" alt="[Image de Produit 3]" class="product-thumbnail"></td>
+                                    <td>Vase en Céramique</td>
+                                    <td>Maison & Déco</td>
+                                    <td>35.50 €</td>
+                                    <td>0</td>
+                                    <td><span class="status-badge status-inactive">Inactif (Stock épuisé)</span></td>
+                                     <td class="space-x-2">
+                                        <button class="btn-warning p-1.5 rounded text-xs"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                                        <button class="btn-danger p-1.5 rounded text-xs"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                     </div>
+                </section>
+
+                <section id="dashboard-orders" class="dashboard-section hidden">
+                     <h2 class="text-2xl font-semibold text-gray-800 mb-6">Gestion des Commandes</h2>
+                     <div class="bg-white p-6 rounded-xl shadow-lg overflow-x-auto">
+                        <table class="table-custom">
+                            <thead>
+                                <tr>
+                                    <th>ID Commande</th>
+                                    <th>Client</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#SOKO-00123</td>
+                                    <td>Jean Dupont</td>
+                                    <td>28/05/2024</td>
+                                    <td>125.50 €</td>
+                                    <td><span class="status-badge status-pending">En attente</span></td>
+                                    <td><a href="#" class="text-blue-600 hover:underline text-sm">Voir Détails</a></td>
+                                </tr>
+                                <tr>
+                                    <td>#SOKO-00122</td>
+                                    <td>Marie Claire</td>
+                                    <td>27/05/2024</td>
+                                    <td>78.00 €</td>
+                                    <td><span class="status-badge status-shipped">Expédiée</span></td>
+                                    <td><a href="#" class="text-blue-600 hover:underline text-sm">Voir Détails</a></td>
+                                </tr>
+                                 <tr>
+                                    <td>#SOKO-00121</td>
+                                    <td>Ahmed Benali</td>
+                                    <td>25/05/2024</td>
+                                    <td>210.00 €</td>
+                                    <td><span class="status-badge status-delivered">Livrée</span></td>
+                                    <td><a href="#" class="text-blue-600 hover:underline text-sm">Voir Détails</a></td>
+                                </tr>
+                                 <tr>
+                                    <td>#SOKO-00120</td>
+                                    <td>Sophie Martin</td>
+                                    <td>24/05/2024</td>
+                                    <td>55.20 €</td>
+                                    <td><span class="status-badge status-cancelled">Annulée</span></td>
+                                    <td><a href="#" class="text-blue-600 hover:underline text-sm">Voir Détails</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                     </div>
+                </section>
+
+                <section id="dashboard-stats" class="dashboard-section hidden">
+                     <h2 class="text-2xl font-semibold text-gray-800 mb-6">Statistiques de la Boutique</h2>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-3">Ventes par Mois (Graphique)</h3>
+                            <div class="h-64 bg-gray-200 rounded flex items-center justify-center">
+                                <p class="text-gray-500">[Placeholder pour le graphique des ventes]</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-3">Produits les Plus Vus</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>Chemise Élégante - 580 vues</li>
+                                <li>Casque Audio Pro - 450 vues</li>
+                                <li>T-shirt Basique - 320 vues</li>
+                            </ul>
+                        </div>
+                     </div>
+                </section>
+
+                <section id="dashboard-invoices" class="dashboard-section hidden">
+                     <h2 class="text-2xl font-semibold text-gray-800 mb-6">Gestion des Factures</h2>
+                     <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <p class="text-gray-600 mb-4">Consultez et téléchargez vos factures mensuelles.</p>
+                        <ul class="space-y-3">
+                            <li class="flex justify-between items-center p-3 bg-gray-50 rounded-md hover:bg-gray-100">
+                                <span>Facture #F2024-05 - Mai 2024</span>
+                                <a href="#" class="btn-secondary py-1 px-3 rounded-md text-xs">Télécharger PDF</a>
+                            </li>
+                            <li class="flex justify-between items-center p-3 bg-gray-50 rounded-md hover:bg-gray-100">
+                                <span>Facture #F2024-04 - Avril 2024</span>
+                                <a href="#" class="btn-secondary py-1 px-3 rounded-md text-xs">Télécharger PDF</a>
+                            </li>
+                        </ul>
+                     </div>
+                </section>
+
+                <section id="dashboard-taxes" class="dashboard-section hidden">
+                     <h2 class="text-2xl font-semibold text-gray-800 mb-6">Taxes et Cotisations</h2>
+                     <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <p class="text-gray-600">Information sur les taxes applicables et les cotisations à la galerie SOKO.</p>
+                        <p class="mt-4 text-gray-500 text-sm">Détails à venir...</p>
+                     </div>
+                </section>
+
+                <section id="dashboard-profile" class="dashboard-section hidden">
+                     <h2 class="text-2xl font-semibold text-gray-800 mb-6">Profil de la Boutique</h2>
+                     <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <form class="space-y-4">
+                            <div>
+                                <label for="shopName" class="block text-sm font-medium text-gray-700">Nom de la boutique</label>
+                                <input type="text" name="shopName" id="shopName" value="Ma Super Boutique" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="shopDescription" class="block text-sm font-medium text-gray-700">Description</label>
+                                <textarea id="shopDescription" name="shopDescription" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">Ceci est une description de ma super boutique sur SOKO.</textarea>
+                            </div>
+                            <div>
+                                <label for="shopLogo" class="block text-sm font-medium text-gray-700">Logo de la boutique</label>
+                                <input type="file" name="shopLogo" id="shopLogo" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            </div>
+                            <div class="pt-2">
+                                <button type="submit" class="btn-primary py-2 px-4 rounded-md text-sm">Enregistrer les Modifications</button>
+                            </div>
+                        </form>
+                     </div>
+                </section>
+
+            </main>
+             <footer class="bg-gray-100 border-t text-center p-4 text-sm text-gray-600 mt-auto">
+                &copy; <span id="currentYearDashboard"></span> SOKO Gestion. Tous droits réservés.
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Dashboard specific JavaScript
+        const currentYearDashboard = document.getElementById('currentYearDashboard');
+        if (currentYearDashboard) {
+            currentYearDashboard.textContent = new Date().getFullYear();
+        }
+
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        const dashboardSections = document.querySelectorAll('.dashboard-section');
+        const dashboardPageTitle = document.getElementById('dashboardPageTitle');
+        const internalNavLinks = document.querySelectorAll('.internal-nav-link'); // For links within sections
+
+        function switchSection(targetId) {
+            sidebarLinks.forEach(l => {
+                if (l.getAttribute('href') === `#${targetId}`) {
+                    l.classList.add('sidebar-link-active');
+                } else {
+                    l.classList.remove('sidebar-link-active');
+                }
+            });
+
+            dashboardSections.forEach(section => {
+                if (section.id === targetId) {
+                    section.classList.remove('hidden');
+                } else {
+                    section.classList.add('hidden');
+                }
+            });
+
+            // Update page title
+            if (dashboardPageTitle) {
+                const activeSidebarLink = document.querySelector(`.sidebar-link[href="#${targetId}"]`);
+                if (activeSidebarLink && activeSidebarLink.querySelector('span')) {
+                     dashboardPageTitle.textContent = activeSidebarLink.querySelector('span').textContent.trim();
+                } else if (activeSidebarLink) { // Fallback if no span (e.g. collapsed sidebar)
+                     const textNode = Array.from(activeSidebarLink.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+                     if(textNode) dashboardPageTitle.textContent = textNode.textContent.trim();
+                }
+            }
+             // Update URL hash
+            // window.location.hash = targetId; // Commented out to prevent page jump if preferred
+        }
+
+
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.getAttribute('href').startsWith('index.html')) return; // Allow normal navigation for external links
+
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                switchSection(targetId);
+
+                // Close mobile sidebar if open and clicked
+                const sidebar = document.querySelector('aside.sidebar');
+                 if (sidebar && sidebar.classList.contains('md:flex') && !sidebar.classList.contains('hidden') && window.innerWidth < 768) { // Check if mobile sidebar is visible
+                    sidebar.classList.add('hidden');
+                }
+            });
+        });
+
+        // Handle internal navigation links (e.g., "Gérer les produits" button)
+        internalNavLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.dataset.target || this.getAttribute('href').substring(1);
+                if (targetId) {
+                    switchSection(targetId);
+                     // Scroll to the top of the main content area for better UX
+                    document.querySelector('.flex-1.flex.flex-col main').scrollTop = 0;
+                }
+            });
+        });
+
+        // Mobile sidebar toggle
+        const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+        const sidebar = document.querySelector('aside.sidebar');
+
+        if (mobileSidebarToggle && sidebar) {
+            mobileSidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden'); // Toggles visibility for mobile
+                sidebar.classList.toggle('md:flex'); // Ensure it remains flex on md+ if it was hidden by toggle
+            });
+        }
+
+         // Set initial active link based on hash or default
+        function setInitialDashboardSection() {
+            let initialSection = 'dashboard-overview';
+            if (window.location.hash && window.location.hash !== '#') {
+                const hashTarget = window.location.hash.substring(1);
+                // Check if a section with this ID exists
+                if (document.getElementById(hashTarget) && document.querySelector(`.sidebar-link[href="#${hashTarget}"]`)) {
+                    initialSection = hashTarget;
+                }
+            }
+            // Simulate a click on the corresponding sidebar link to set the initial state
+            const initialLink = document.querySelector(`.sidebar-link[href="#${initialSection}"]`);
+            if (initialLink) {
+                initialLink.click();
+            } else { // Fallback if the link isn't found (e.g. bad hash)
+                document.querySelector(`.sidebar-link[href="#dashboard-overview"]`)?.click();
+            }
+        }
+
+        // Wait for the DOM to be fully loaded before setting the initial section,
+        // especially if there are many elements or complex scripts.
+        document.addEventListener('DOMContentLoaded', () => {
+            setInitialDashboardSection();
+        });
+
+    </script>
+</body>
+</html>
